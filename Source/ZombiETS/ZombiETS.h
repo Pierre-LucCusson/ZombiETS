@@ -3,6 +3,7 @@
 #ifndef __ZOMBIETS_H__
 #define __ZOMBIETS_H__
 
-#include "EngineMinimal.h"
+//#include "EngineMinimal.h"
+#include "Engine.h"
 
 #endif
