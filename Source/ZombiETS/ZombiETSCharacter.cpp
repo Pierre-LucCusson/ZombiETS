@@ -3,6 +3,8 @@
 #include "ZombiETS.h"
 #include "Kismet/HeadMountedDisplayFunctionLibrary.h"
 #include "ZombiETSCharacter.h"
+#include "Pickup.h"
+#include "HealthPickup.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AZombiETSCharacter
@@ -38,8 +40,17 @@ AZombiETSCharacter::AZombiETSCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	// Create the collection sphere
+	CollectionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollectionSphere"));
+	CollectionSphere->AttachTo(RootComponent);
+	CollectionSphere->SetSphereRadius(100.f);
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+
+	// Set a base health amount for the main character
+	InitialHealth = 1000.f;
+	CharacterHealth = InitialHealth;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -51,9 +62,10 @@ void AZombiETSCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-
 	PlayerInputComponent->BindAxis("MoveForward", this, &AZombiETSCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AZombiETSCharacter::MoveRight);
+
+	PlayerInputComponent->BindAction("Collect", IE_Pressed, this, &AZombiETSCharacter::CollectPickups);
 
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
@@ -79,12 +91,12 @@ void AZombiETSCharacter::OnResetVR()
 
 void AZombiETSCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
 {
-		Jump();
+	Jump();
 }
 
 void AZombiETSCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
 {
-		StopJumping();
+	StopJumping();
 }
 
 void AZombiETSCharacter::TurnAtRate(float Rate)
@@ -115,15 +127,73 @@ void AZombiETSCharacter::MoveForward(float Value)
 
 void AZombiETSCharacter::MoveRight(float Value)
 {
-	if ( (Controller != NULL) && (Value != 0.0f) )
+	if ((Controller != NULL) && (Value != 0.0f))
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-	
+
 		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+void AZombiETSCharacter::CollectPickups()
+{
+	// Get all overlapping Actors and store them in an array
+	TArray<AActor*> CollectedActors;
+	CollectionSphere->GetOverlappingActors(CollectedActors);
+
+	// Keep track of the collected health pickup
+	float CollectedHealth = 0;
+
+	// For each Actor we collected
+	for (int32 iCollected = 0; iCollected < CollectedActors.Num(); ++iCollected)
+	{
+		// Cast the actor to APickup
+		APickup* const TestPickup = Cast<APickup>(CollectedActors[iCollected]);
+
+		// If the cast is successful and the pickup is valid and active
+		if (TestPickup && !TestPickup->IsPendingKill() && TestPickup->IsActive())
+		{
+			// Call the pickup's WasCollected function
+			TestPickup->WasCollected();
+
+			// Check if the pickup is a HealthPickup
+			AHealthPickup* const TestHealthPickup = Cast<AHealthPickup>(TestPickup);
+			if (TestHealthPickup) 
+			{
+				// Increase Health Points
+				CollectedHealth += TestHealthPickup->getHealthPoints();
+			}
+
+			// Deactivate the pickup
+			TestPickup->SetActive(false);
+		}
+	}
+	if (CollectedHealth > 0) 
+	{
+		UpdateHealth(CollectedHealth);
+	}
+}
+
+float AZombiETSCharacter::GetInitialHealth()
+{
+	return InitialHealth;
+}
+
+float AZombiETSCharacter::GetCurrentHealth()
+{
+	return CharacterHealth;
+}
+
+void AZombiETSCharacter::UpdateHealth(float HealthChange)
+{
+	// Change Character'health
+	CharacterHealth += HealthChange;
+
+	// call visual effect
+	HealthChangeEffect();
 }

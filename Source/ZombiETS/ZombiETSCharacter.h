@@ -15,6 +15,10 @@ class AZombiETSCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+	/** Collection sphere */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class USphereComponent* CollectionSphere;
 public:
 	AZombiETSCharacter();
 
@@ -25,6 +29,22 @@ public:
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
+
+	// Getter Initial Health
+	UFUNCTION(BlueprintPure, Category = "Health")
+	float GetInitialHealth();
+
+	// Getter Current Health
+	UFUNCTION(BlueprintPure, Category = "Health")
+	float GetCurrentHealth();
+
+	/**
+	* Function to update character's health (security, disable modification of variable withtout accessing code)
+	* @param HealthChange : The variable can be + or -
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void UpdateHealth(float HealthChange);
+
 
 protected:
 
@@ -60,10 +80,28 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
 
+	// Called when we press the collect key (c)
+	UFUNCTION(BlueprintCallable, Category = "Pickups")
+	void CollectPickups();
+
+	// The starting health of main character
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	float InitialHealth;
+
+	UFUNCTION(BlueprintImplementableEvent, category = "Health")
+	void HealthChangeEffect();
+
+private:
+	// Current health of the main character
+	UPROPERTY(VisibleAnywhere, Category = "Health")
+	float CharacterHealth;
+
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	// Returns CollectionSphere subObject
+	FORCEINLINE class USphereComponent* GetCollectionSphere() const { return CollectionSphere; }
 };
 

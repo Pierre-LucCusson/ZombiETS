@@ -10,7 +10,16 @@ class AZombiETSGameMode : public AGameModeBase
 
 public:
 	AZombiETSGameMode();
+
+	virtual void Tick(float DeltaTime) override;
+
+protected:
+	// health decreasing rate
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health")
+	float HealthDecayRate;
 };
+
+
 
 
 
