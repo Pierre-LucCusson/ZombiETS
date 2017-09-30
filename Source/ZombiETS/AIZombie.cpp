@@ -40,7 +40,7 @@ void AAIZombie::BeginPlay()
 void AAIZombie::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
+		
 }
 
 void AAIZombie::OnPlayerCaught(APawn * Pawn)
@@ -50,7 +50,7 @@ void AAIZombie::OnPlayerCaught(APawn * Pawn)
 
 	if (AIController)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("You have been touch!"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Zombie: I can see yuou !!!"));
 		AIController->SetPlayerCaught(Pawn);
 	}
 }
