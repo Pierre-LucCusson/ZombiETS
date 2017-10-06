@@ -1,5 +1,7 @@
 // Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
 #pragma once
+#include "WaveManager.h"
+
 #include "GameFramework/GameModeBase.h"
 #include "ZombiETSGameMode.generated.h"
 
@@ -18,12 +20,21 @@ class AZombiETSGameMode : public AGameModeBase
 
 public:
 	AZombiETSGameMode();
+	~AZombiETSGameMode();
 
 	virtual void Tick(float DeltaTime) override;
 
 	// Returns health to lose, used by HUD
 	UFUNCTION(BlueprintPure, Category = "Health")
 	float GetHealthToLose();
+
+	// Returns wave number
+	UFUNCTION(BlueprintPure, Category = "Wave")
+	int GetWaveNumber();
+
+	// Returns wave music name
+	UFUNCTION(BlueprintPure, Category = "Wave")
+	FString GetWaveMusicName();
 
 	virtual void BeginPlay() override;
 
@@ -48,7 +59,19 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", Meta = (BlueprintProtected = "true"))
 	TSubclassOf<class UUserWidget> HUDWidgetClass;
 
-	// Instance of widget class
+	// The current wave number
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wave", Meta = (BlueprintProtected = "true"))
+	int waveNumber;
+
+	// The name of the wave music
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wave", Meta = (BlueprintProtected = "true"))
+	FString waveMusic;
+
+	// Wave Widget class
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wave", Meta = (BlueprintProtected = "true"))
+	TSubclassOf<class UUserWidget> WaveHUDWidgetClass;
+
+	// Instance of health widget class
 	UPROPERTY()
 	class UUserWidget* CurrentWidget;
 
@@ -56,6 +79,11 @@ private:
 	// Playing status
 	UPROPERTY()
 	EHealthPlayState CurrentState;
+
+	// Wave Manager
+	WaveManager* waveManager;
+
+	void Dead();
 };
 
 

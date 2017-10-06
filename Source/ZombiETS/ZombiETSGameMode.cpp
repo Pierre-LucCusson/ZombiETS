@@ -25,6 +25,18 @@ AZombiETSGameMode::AZombiETSGameMode()
 
 	// base health decay rate
 	HealthDecayRate = 0.01f;
+
+	waveManager = new WaveManager();
+}
+
+int AZombiETSGameMode::GetWaveNumber()
+{
+	return waveNumber;
+}
+
+FString AZombiETSGameMode::GetWaveMusicName()
+{
+	return waveMusic;
 }
 
 void AZombiETSGameMode::BeginPlay()
@@ -47,6 +59,21 @@ void AZombiETSGameMode::BeginPlay()
 			CurrentWidget->AddToViewport();
 		}
 	}
+	if (WaveHUDWidgetClass != nullptr)
+	{
+		CurrentWidget = CreateWidget<UUserWidget>(GetWorld(), WaveHUDWidgetClass);
+		if (CurrentWidget != nullptr)
+		{
+			CurrentWidget->AddToViewport();
+		}
+	}
+
+	waveManager->StartNextWave();
+}
+
+AZombiETSGameMode::~AZombiETSGameMode()
+{
+	delete waveManager;
 }
 
 void AZombiETSGameMode::Tick(float DeltaTime)
@@ -59,7 +86,7 @@ void AZombiETSGameMode::Tick(float DeltaTime)
 		// if game over (DEAD)
 		if (MyCharacter->GetCurrentHealth() <= HealthToLose)
 		{
-			SetCurrentState(EHealthPlayState::EGameOver);
+			Dead();
 		}
 		// If still alive
 		else if (MyCharacter->GetCurrentHealth() > 0) 
@@ -68,6 +95,9 @@ void AZombiETSGameMode::Tick(float DeltaTime)
 			MyCharacter->UpdateHealth(-DeltaTime * HealthDecayRate * (MyCharacter->GetInitialHealth()));
 		}
 	}
+
+	waveNumber = waveManager->CurrentWave()->GetNumber();
+	waveMusic = waveManager->CurrentWave()->GetName();
 }
 
 float AZombiETSGameMode::GetHealthToLose()
@@ -83,4 +113,10 @@ EHealthPlayState AZombiETSGameMode::GetCurrentState() const
 void AZombiETSGameMode::SetCurrentState(EHealthPlayState NewState)
 {
 	CurrentState = NewState;
+}
+
+void AZombiETSGameMode::Dead()
+{
+	SetCurrentState(EHealthPlayState::EGameOver);
+	waveManager->StopWave();
 }
