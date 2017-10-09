@@ -50,7 +50,7 @@ void AAIZombie::OnPlayerCaught(APawn * Pawn)
 
 	if (AIController)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Zombie: I can see yuou !!!"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Zombie: I can see you !!!"));
 		AIController->SetPlayerCaught(Pawn);
 	}
 }
