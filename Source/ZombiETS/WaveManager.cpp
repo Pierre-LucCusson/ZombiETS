@@ -8,7 +8,7 @@ WaveManager::WaveManager()
 	music = new ZombiETSMusicPlayer();
 	files = new FilesInDirectory(".wav");
 	files->ReadDirectory(FilesInDirectory::GetMyDocuments() + TEXT("\\ZombiETS\\music"));
-
+	//files->ReadDirectory(FilesInDirectory::GetExeDirectory() + TEXT("\\music"));
 	waves = new std::vector<ZombiETSWave*>();
 }
 

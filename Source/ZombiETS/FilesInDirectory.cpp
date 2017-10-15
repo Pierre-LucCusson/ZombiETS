@@ -77,3 +77,10 @@ std::wstring FilesInDirectory::GetMyDocuments()
 	HRESULT result = SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, my_documents);
 	return std::wstring(my_documents);
 }
+
+std::wstring FilesInDirectory::GetExeDirectory()
+{
+	wchar_t buffer[MAX_PATH];
+	GetModuleFileName(NULL, buffer, MAX_PATH);
+	return std::wstring(buffer);
+}

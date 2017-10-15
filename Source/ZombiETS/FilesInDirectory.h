@@ -35,4 +35,5 @@ public:
 	void ReadDirectory(const std::wstring& name);
 
 	static std::wstring GetMyDocuments();
+	static std::wstring GetExeDirectory();
 };
