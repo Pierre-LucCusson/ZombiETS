@@ -115,8 +115,30 @@ void AZombiETSGameMode::SetCurrentState(EHealthPlayState NewState)
 	CurrentState = NewState;
 }
 
+void AZombiETSGameMode::Pause() {
+	APlayerController* player = Cast<APlayerController>(GEngine->GetFirstLocalPlayerController(GetWorld()));
+	if (player != NULL) {
+		player->SetPause(true);
+	}
+}
+
 void AZombiETSGameMode::Dead()
 {
 	SetCurrentState(EHealthPlayState::EGameOver);
 	waveManager->StopWave();
+	Pause();
+	CurrentWidget = CreateWidget<UUserWidget>(GetWorld(), DeathWidgetClass);
+	if (CurrentWidget != nullptr)
+	{
+		CurrentWidget->AddToViewport();
+	}
+	APlayerController* PC = Cast<APlayerController>(GEngine->GetFirstLocalPlayerController(GetWorld()));
+
+	if (PC)
+	{
+		PC->bShowMouseCursor = true;
+		PC->bEnableClickEvents = true;
+		PC->bEnableMouseOverEvents = true;
+	}
+
 }

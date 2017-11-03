@@ -46,6 +46,9 @@ public:
 	UFUNCTION()
 	void SetCurrentState(EHealthPlayState NewState);
 
+	// Set the game to pause
+	void Pause();
+
 protected:
 	// health decreasing rate
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", Meta = (BlueprintProtected = "true"))
@@ -70,6 +73,10 @@ protected:
 	// Wave Widget class
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wave", Meta = (BlueprintProtected = "true"))
 	TSubclassOf<class UUserWidget> WaveHUDWidgetClass;
+
+	// Wave Widget class
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Death", Meta = (BlueprintProtected = "true"))
+	TSubclassOf<class UUserWidget> DeathWidgetClass;
 
 	// Instance of health widget class
 	UPROPERTY()
