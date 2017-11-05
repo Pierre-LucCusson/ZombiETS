@@ -12,7 +12,7 @@ class ZOMBIETS_API AAIZombie : public ACharacter
 
 public:
 	// Sets default values for this character's properties
-	AAIZombie();
+	AAIZombie(const FObjectInitializer& objectInitializer);
 
 protected:
 	// Called when the game starts or when spawned
@@ -31,9 +31,13 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = AI)
 	class UPawnSensingComponent* PawnSensingComp;
 
+	UFUNCTION()
+	void OnZombieOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 private:
 
 	UFUNCTION()
 	void OnPlayerCaught(APawn* Pawn);
-	
+
+	USphereComponent* overlapColision;
 };

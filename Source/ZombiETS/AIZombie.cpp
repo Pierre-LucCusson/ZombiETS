@@ -6,8 +6,11 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "Perception/PawnSensingComponent.h"
 
+#define COLLISION_SWORD ECollisionChannel::ECC_GameTraceChannel1
+
 // Sets default values
-AAIZombie::AAIZombie()
+AAIZombie::AAIZombie(const FObjectInitializer& objectInitializer)
+	:Super(objectInitializer)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	//PrimaryActorTick.bCanEverTick = true;
@@ -16,6 +19,14 @@ AAIZombie::AAIZombie()
 	PawnSensingComp = CreateEditorOnlyDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
 	PawnSensingComp->SetPeripheralVisionAngle(90.f);
 
+	//Init overlapColision
+	overlapColision = CreateDefaultSubobject<USphereComponent>(TEXT("RootCollision"));
+	overlapColision->SetSphereRadius(80.0f);
+	//overlapColision->SetHiddenInGame(false);
+	overlapColision->OnComponentBeginOverlap.AddDynamic(this, &AAIZombie::OnZombieOverlap);
+	overlapColision->SetCollisionObjectType(COLLISION_SWORD);
+	overlapColision->SetupAttachment(RootComponent);
+	
 }
 
 // Called when the game starts or when spawned
@@ -50,8 +61,13 @@ void AAIZombie::OnPlayerCaught(APawn * Pawn)
 
 	if (AIController)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Zombie: I can see you !!!"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Zombie: I can see you !!!"));
 		AIController->SetPlayerCaught(Pawn);
 	}
+}
+
+void AAIZombie::OnZombieOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Zombie: Ouch, you hit me."));
 }
 
