@@ -2,6 +2,7 @@
 
 #include "ZombiETS.h"
 #include "ZombiETSWave.h"
+#include "BeatFinder.h"
 
 #include <fstream>
 
@@ -20,11 +21,15 @@ ZombiETSWave::ZombiETSWave(std::string musicPath, int number)
 	this->number = number;
 	SetNameFromPath();
 	music = new ZombiETSMusicPlayer();
+
+	musicData = FindBeats(musicPath.c_str());
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Wave: Music analysis complete."));
 }
 
 ZombiETSWave::~ZombiETSWave()
 {
 	delete music;
+	delete musicData;
 }
 
 int ZombiETSWave::GetNumber()

@@ -20,6 +20,7 @@ private:
 	std::string musicPath;
 	FString musicName;
 	ZombiETSMusicPlayer* music;
+	BeatInfo* musicData;
 
 	void SetNameFromPath();
 public:
