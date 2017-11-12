@@ -2,7 +2,6 @@
 
 #include "ZombiETS.h"
 #include "ZombiETSWave.h"
-#include "BeatFinder.h"
 
 #include <fstream>
 

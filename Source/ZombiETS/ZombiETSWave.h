@@ -7,6 +7,7 @@
 #include <istream>
 
 #include "ZombiETSMusicPlayer.h"
+#include "BeatFinder.h"
 
 #pragma once
 
