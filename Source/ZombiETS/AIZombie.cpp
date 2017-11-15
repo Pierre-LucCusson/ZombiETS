@@ -8,12 +8,14 @@
 
 #define COLLISION_SWORD ECollisionChannel::ECC_GameTraceChannel1
 
+float AAIZombie::speedMultiplier = 0.0f;
+
 // Sets default values
 AAIZombie::AAIZombie(const FObjectInitializer& objectInitializer)
 	:Super(objectInitializer)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	//PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = true;
 
 	//Init senses
 	PawnSensingComp = CreateEditorOnlyDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
@@ -33,7 +35,7 @@ AAIZombie::AAIZombie(const FObjectInitializer& objectInitializer)
 void AAIZombie::BeginPlay()
 {
 	Super::BeginPlay();
-
+	baseSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	if (PawnSensingComp)
 	{
 		PawnSensingComp->OnSeePawn.AddDynamic(this, &AAIZombie::OnPlayerCaught);
@@ -42,10 +44,14 @@ void AAIZombie::BeginPlay()
 }
 
 // Called every frame
-//void AAIZombie::Tick(float DeltaTime)
-//{
-//	Super::Tick(DeltaTime);
-//}
+void AAIZombie::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	if (speedMultiplier == 0.0f)
+		GetCharacterMovement()->MaxWalkSpeed = baseSpeed;
+	else
+		GetCharacterMovement()->MaxWalkSpeed = baseSpeed * speedMultiplier;
+}
 
 // Called to bind functionality to input
 void AAIZombie::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -69,5 +75,15 @@ void AAIZombie::OnPlayerCaught(APawn * Pawn)
 void AAIZombie::OnZombieOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Zombie: Ouch, you hit me."));
+}
+
+float AAIZombie::GetSpeedMultiplier()
+{
+	return speedMultiplier;
+}
+
+float AAIZombie::SetSpeedMultiplier(float speed)
+{
+	return speedMultiplier = speed;
 }
 

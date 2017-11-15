@@ -9,6 +9,7 @@
 #include "Runtime/UMG/Public/Slate/SObjectWidget.h"
 #include "Runtime/UMG/Public/IUMGModule.h"
 #include "Runtime/UMG/Public/Blueprint/UserWidget.h"
+#include "AIZombie.h"
 
 
 AZombiETSGameMode::AZombiETSGameMode()
@@ -44,7 +45,7 @@ void AZombiETSGameMode::BeginPlay()
 	Super::BeginPlay();
 
 	SetCurrentState(EHealthPlayState::EPlaying);
-
+	SetLighting(1.0f);
 	// Set the health to lose
 	AZombiETSCharacter* MyCharacter = Cast<AZombiETSCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 	if (MyCharacter)
@@ -96,8 +97,7 @@ void AZombiETSGameMode::Tick(float DeltaTime)
 		}
 	}
 
-	waveNumber = waveManager->CurrentWave()->GetNumber();
-	waveMusic = waveManager->CurrentWave()->GetName();
+	ManageWave(waveManager->CurrentWave());
 }
 
 float AZombiETSGameMode::GetHealthToLose()
@@ -120,6 +120,36 @@ void AZombiETSGameMode::Pause() {
 	if (player != NULL) {
 		player->SetPause(true);
 	}
+}
+
+void AZombiETSGameMode::SetLighting(float lighting)
+{
+	for (TActorIterator<ADirectionalLight> Itr(GetWorld()); Itr; ++Itr)
+	{
+		ADirectionalLight* light = *Itr;
+		light->SetBrightness(3*lighting);
+	}
+
+	for (TActorIterator<ASkyLight> Itr(GetWorld()); Itr; ++Itr)
+	{
+		ASkyLight* light = *Itr;
+		light->GetLightComponent()->Intensity = lighting;
+	}
+}
+
+void AZombiETSGameMode::SetZombieSpeed(float speed)
+{
+	AAIZombie::SetSpeedMultiplier(speed);
+}
+
+void AZombiETSGameMode::ManageWave(ZombiETSWave * wave)
+{
+	waveNumber = waveManager->CurrentWave()->GetNumber();
+	waveMusic = waveManager->CurrentWave()->GetName();
+	waveTime = waveManager->CurrentWave()->Time();
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::FromInt(waveTime));
+
+	//todo insert SetLighting and SetZombieSpeed here
 }
 
 void AZombiETSGameMode::Dead()

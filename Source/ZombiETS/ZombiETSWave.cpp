@@ -44,9 +44,20 @@ FString ZombiETSWave::GetName()
 void ZombiETSWave::Start()
 {
 	music->Play(musicPath);
+	atStart = std::chrono::system_clock::now();
 }
 
 void ZombiETSWave::Stop()
 {
 	music->Stop();
+	atEnd = std::chrono::system_clock::now();
+}
+
+int ZombiETSWave::Time()
+{
+	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+	if (atEnd != std::chrono::system_clock::time_point()) {
+		now = atEnd;
+	}
+	return std::chrono::duration_cast<std::chrono::seconds>(now - atStart).count();
 }

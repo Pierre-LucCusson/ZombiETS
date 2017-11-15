@@ -49,6 +49,15 @@ public:
 	// Set the game to pause
 	void Pause();
 
+	//Set lighting throught the current level
+	void SetLighting(float lighting);
+
+	//Set all zombie speed
+	void SetZombieSpeed(float speed);
+
+	//Manage the wave
+	void ManageWave(ZombiETSWave* wave);
+
 protected:
 	// health decreasing rate
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", Meta = (BlueprintProtected = "true"))
@@ -65,6 +74,10 @@ protected:
 	// The current wave number
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wave", Meta = (BlueprintProtected = "true"))
 	int waveNumber;
+
+	// The current wave time in seconds
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wave", Meta = (BlueprintProtected = "true"))
+	int waveTime;
 
 	// The name of the wave music
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wave", Meta = (BlueprintProtected = "true"))

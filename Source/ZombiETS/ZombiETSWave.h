@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <istream>
+#include <chrono>
 
 #include "ZombiETSMusicPlayer.h"
 #include "BeatFinder.h"
@@ -23,6 +24,9 @@ private:
 	ZombiETSMusicPlayer* music;
 	BeatInfo* musicData;
 
+	std::chrono::system_clock::time_point atStart;
+	std::chrono::system_clock::time_point atEnd;
+
 	void SetNameFromPath();
 public:
 	ZombiETSWave(std::string musicPath, int number = 0);
@@ -32,4 +36,6 @@ public:
 	FString GetName();
 	void Start();
 	void Stop();
+
+	int Time();
 };
