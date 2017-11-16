@@ -142,6 +142,11 @@ void AZombiETSGameMode::SetZombieSpeed(float speed)
 	AAIZombie::SetSpeedMultiplier(speed);
 }
 
+void AZombiETSGameMode::SetPlayerSpeed(float speed)
+{
+	AZombiETSCharacter::SetSpeedMultiplier(speed);
+}
+
 void AZombiETSGameMode::ManageWave(ZombiETSWave * wave)
 {
 	waveNumber = waveManager->CurrentWave()->GetNumber();

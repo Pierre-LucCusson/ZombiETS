@@ -52,6 +52,9 @@ public:
 	//Set lighting throught the current level
 	void SetLighting(float lighting);
 
+	//Set all player speed
+	void SetPlayerSpeed(float speed);
+
 	//Set all zombie speed
 	void SetZombieSpeed(float speed);
 

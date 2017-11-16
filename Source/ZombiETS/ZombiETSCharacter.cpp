@@ -9,8 +9,12 @@
 //////////////////////////////////////////////////////////////////////////
 // AZombiETSCharacter
 
+float AZombiETSCharacter::speedMultiplier = 1.0f;
+
 AZombiETSCharacter::AZombiETSCharacter()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
@@ -28,6 +32,7 @@ AZombiETSCharacter::AZombiETSCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.2f;
+	GetCharacterMovement()->Speed
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -51,6 +56,13 @@ AZombiETSCharacter::AZombiETSCharacter()
 	// Set a base health amount for the main character
 	InitialHealth = 1000.f;
 	CharacterHealth = InitialHealth;
+}
+
+// Called every frame
+void AZombiETSCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	GetCharacterMovement()->MaxWalkSpeed = baseSpeed * speedMultiplier;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -83,6 +95,12 @@ void AZombiETSCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AZombiETSCharacter::OnResetVR);
 }
 
+// Called when the game starts or when spawned
+void AZombiETSCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	baseSpeed = GetCharacterMovement()->MaxWalkSpeed;
+}
 
 void AZombiETSCharacter::OnResetVR()
 {
@@ -196,4 +214,14 @@ void AZombiETSCharacter::UpdateHealth(float HealthChange)
 
 	// call visual effect
 	HealthChangeEffect();
+}
+
+float AZombiETSCharacter::GetSpeedMultiplier()
+{
+	return speedMultiplier;
+}
+
+float AZombiETSCharacter::SetSpeedMultiplier(float speed)
+{
+	return speedMultiplier = speed;
 }

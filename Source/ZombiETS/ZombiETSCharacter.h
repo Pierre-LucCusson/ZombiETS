@@ -19,8 +19,16 @@ class AZombiETSCharacter : public ACharacter
 	/** Collection sphere */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* CollectionSphere;
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
 public:
 	AZombiETSCharacter();
+
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
@@ -44,6 +52,12 @@ public:
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void UpdateHealth(float HealthChange);
+
+	static float GetSpeedMultiplier();
+	static float SetSpeedMultiplier(float speed);
+
+	float baseSpeed;
+	static float speedMultiplier;
 
 
 protected:
