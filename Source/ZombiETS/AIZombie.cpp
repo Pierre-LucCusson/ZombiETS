@@ -8,7 +8,7 @@
 
 #define COLLISION_SWORD ECollisionChannel::ECC_GameTraceChannel1
 
-float AAIZombie::speedMultiplier = 0.0f;
+float AAIZombie::speedMultiplier = 1.0f;
 
 // Sets default values
 AAIZombie::AAIZombie(const FObjectInitializer& objectInitializer)
@@ -47,10 +47,7 @@ void AAIZombie::BeginPlay()
 void AAIZombie::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (speedMultiplier == 0.0f)
-		GetCharacterMovement()->MaxWalkSpeed = baseSpeed;
-	else
-		GetCharacterMovement()->MaxWalkSpeed = baseSpeed * speedMultiplier;
+	GetCharacterMovement()->MaxWalkSpeed = baseSpeed * speedMultiplier;
 }
 
 // Called to bind functionality to input
