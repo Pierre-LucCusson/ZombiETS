@@ -37,5 +37,5 @@ public:
 	void Start();
 	void Stop();
 
-	int Time();
+	long Time();
 };

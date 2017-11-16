@@ -53,11 +53,14 @@ void ZombiETSWave::Stop()
 	atEnd = std::chrono::system_clock::now();
 }
 
-int ZombiETSWave::Time()
+long ZombiETSWave::Time()
 {
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-	if (atEnd != std::chrono::system_clock::time_point()) {
+
+	if (atEnd != std::chrono::system_clock::time_point())
+	{
 		now = atEnd;
 	}
-	return std::chrono::duration_cast<std::chrono::seconds>(now - atStart).count();
+
+	return std::chrono::duration_cast<std::chrono::milliseconds>(now - atStart).count();
 }
