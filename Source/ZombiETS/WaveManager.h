@@ -15,6 +15,7 @@ private:
 
 	std::vector<ZombiETSWave*>* waves;
 	int waveCount = 0;
+
 public:
 	WaveManager();
 	~WaveManager();

@@ -23,6 +23,8 @@ private:
 	FString musicName;
 	ZombiETSMusicPlayer* music;
 	BeatInfo* musicData;
+	float maxSpectralFlux;
+	int maxSpectralPeak;
 
 	std::chrono::system_clock::time_point atStart;
 	std::chrono::system_clock::time_point atEnd;
@@ -38,4 +40,10 @@ public:
 	void Stop();
 
 	long Time();
+	float GetInstantSpectralFlux();
+	float GetMaximumSpectralFlux();
+	float GetAverageSpectralFlux(int interval);
+	int GetInstantSpectralPeak();
+	int GetMaximumSpectralPeak();
+	float GetAverageSpectralPeak(int interval);
 };

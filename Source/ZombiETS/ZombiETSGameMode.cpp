@@ -154,7 +154,25 @@ void AZombiETSGameMode::ManageWave(ZombiETSWave * wave)
 	waveTime = waveManager->CurrentWave()->Time();
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::FromInt(waveTime));
 
-	//todo insert SetLighting and SetZombieSpeed here
+	double spectralFlux = waveManager->CurrentWave()->GetAverageSpectralFlux(1000);
+	int spectralPeak = waveManager->CurrentWave()->GetAverageSpectralPeak(100);
+	double maxFlux = waveManager->CurrentWave()->GetMaximumSpectralFlux();
+	int maxPeak = waveManager->CurrentWave()->GetMaximumSpectralPeak();
+
+	double fluxIntensity = spectralFlux / maxFlux;
+	double peakIntensity = spectralPeak / (double)maxPeak;
+
+	double minSpeedFactor = 0.6;
+	double maxSpeedFactor = 50.0;
+	float speedPower = 0.9;
+	SetPlayerSpeed(FMath::Max((float)minSpeedFactor, FMath::Pow(fluxIntensity * (maxSpeedFactor - minSpeedFactor), speedPower)));
+
+	double minLightFactor = 0.15;
+	double maxLightFactor = 3.5;
+	float lightPower = 0.9;
+	SetLighting(FMath::Max((float)minLightFactor, FMath::Pow(peakIntensity * (maxLightFactor - minLightFactor), lightPower)));
+
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Current speed: %f"), intensity));
 }
 
 void AZombiETSGameMode::Dead()
