@@ -3,10 +3,12 @@
 #include "ZombiETS.h"
 #include "AIZombie.h"
 #include "AIZombieController.h"
+#include "ZombiETSCharacter.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "Perception/PawnSensingComponent.h"
 
 #define COLLISION_SWORD ECollisionChannel::ECC_GameTraceChannel1
+#define COLLISION_PLAYER ECollisionChannel::ECC_GameTraceChannel2
 
 float AAIZombie::speedMultiplier = 1.0f;
 
@@ -22,12 +24,33 @@ AAIZombie::AAIZombie(const FObjectInitializer& objectInitializer)
 	PawnSensingComp->SetPeripheralVisionAngle(90.f);
 
 	//Init overlapColision
-	overlapColision = CreateDefaultSubobject<USphereComponent>(TEXT("RootCollision"));
-	overlapColision->SetSphereRadius(80.0f);
-	//overlapColision->SetHiddenInGame(false);
-	overlapColision->OnComponentBeginOverlap.AddDynamic(this, &AAIZombie::OnZombieOverlap);
-	overlapColision->SetCollisionObjectType(COLLISION_SWORD);
-	overlapColision->SetupAttachment(RootComponent);
+	overlapSwordColision = CreateDefaultSubobject<USphereComponent>(TEXT("RootSwordCollision"));
+	overlapSwordColision->SetSphereRadius(80.0f);
+	//overlapSwordColision->SetHiddenInGame(false);
+	overlapSwordColision->OnComponentBeginOverlap.AddDynamic(this, &AAIZombie::OnZombieOverlap);
+	overlapSwordColision->SetCollisionObjectType(COLLISION_SWORD);
+	overlapSwordColision->SetupAttachment(RootComponent);
+
+	//Init overlapPlayerColision
+	overlapPlayerColision = CreateDefaultSubobject<USphereComponent>(TEXT("RootPlayerCollision"));
+	overlapPlayerColision->SetSphereRadius(80.0f);
+	overlapPlayerColision->OnComponentBeginOverlap.AddDynamic(this, &AAIZombie::OnZombieOverlap);
+	overlapPlayerColision->SetCollisionObjectType(COLLISION_PLAYER);
+	overlapPlayerColision->SetupAttachment(RootComponent);
+
+	// Set a base health amount for the main character
+	InitialHealth = 1000.f;
+	ZombieHealth = InitialHealth;
+
+	//init animations
+	static ConstructorHelpers::FObjectFinder<UAnimSequence> deathAnim(TEXT("AnimSequence'/Game/AI/Zombie/Skins/ZombieYaku/Animations/Yaku_Zombie_Death_Anim_mixamo_com'"));
+	deathAnimation = deathAnim.Object;
+
+	static ConstructorHelpers::FObjectFinder<UAnimSequence> hitAnim(TEXT("AnimSequence'/Game/AI/Zombie/Skins/ZombieYaku/Animations/Yaku_Zombie_Reaction_Hit_Anim_mixamo_com'"));
+	hitAnimation = hitAnim.Object;
+
+	static ConstructorHelpers::FObjectFinder<UAnimSequence> attAnim(TEXT("AnimSequence'/Game/AI/Zombie/Skins/ZombieYaku/Animations/Yaku_Zombie_Attack_Anim_mixamo_com'"));
+	attackAnimation = attAnim.Object;
 	
 }
 
@@ -71,7 +94,29 @@ void AAIZombie::OnPlayerCaught(APawn * Pawn)
 
 void AAIZombie::OnZombieOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Zombie: Ouch, you hit me."));
+	if (OverlappedComponent->GetCollisionObjectType() == COLLISION_PLAYER) {
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("PLAYER"));
+		GetMesh()->PlayAnimation(attackAnimation, false);
+		AZombiETSCharacter* player = Cast<AZombiETSCharacter>(OtherActor);
+		if (player != nullptr) {
+			player->UpdateHealth(-100);
+		}
+	}
+	else if (OverlappedComponent->GetCollisionObjectType() == COLLISION_SWORD) {
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("SWORD"));
+		UpdateHealth(-500);
+		if (ZombieHealth <= 0) {
+			if (!isDead) {
+				isDead = true;
+				GetMesh()->PlayAnimation(deathAnimation, false);
+				SetLifeSpan(5);
+				//Destroy();
+			}
+		}
+		else {
+			GetMesh()->PlayAnimation(hitAnimation, false);
+		}
+	}
 }
 
 float AAIZombie::GetSpeedMultiplier()
@@ -82,5 +127,23 @@ float AAIZombie::GetSpeedMultiplier()
 float AAIZombie::SetSpeedMultiplier(float speed)
 {
 	return speedMultiplier = speed;
+}
+
+/*HEALTH*/
+float AAIZombie::GetInitialHealth()
+{
+	return InitialHealth;
+}
+
+float AAIZombie::GetCurrentHealth()
+{
+	return ZombieHealth;
+}
+
+void AAIZombie::UpdateHealth(float HealthChange)
+{
+	// Change Character'health
+	ZombieHealth += HealthChange;
+
 }
 
