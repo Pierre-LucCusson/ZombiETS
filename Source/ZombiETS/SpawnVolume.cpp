@@ -64,9 +64,13 @@ void ASpawnVolume::SpawnPickup()
 
 			// Get a random rotation for the spawned item
 			FRotator SpawnRotation;
-			SpawnRotation.Yaw = FMath::FRand() * 360.0;
-			SpawnRotation.Pitch = FMath::FRand() * 360.0;
-			SpawnRotation.Roll = FMath::FRand() * 360.0;
+			//SpawnRotation.Yaw = FMath::FRand() * 360.0;
+			//SpawnRotation.Pitch = FMath::FRand() * 360.0;
+			//SpawnRotation.Roll = FMath::FRand() * 360.0;
+
+			SpawnRotation.Yaw = 0;
+			SpawnRotation.Pitch = 0;
+			SpawnRotation.Roll = 0;
 
 			// Spawn the pickup
 			APickup* const SpawnedPickup = World->SpawnActor<APickup>(WhatToSpawn, SpawnLocation, SpawnRotation);
