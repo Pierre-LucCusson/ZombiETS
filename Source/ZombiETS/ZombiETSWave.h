@@ -23,6 +23,7 @@ private:
 	FString musicName;
 	ZombiETSMusicPlayer* music;
 	BeatInfo* musicData;
+	float maxAmplitude;
 	float maxSpectralFlux;
 	int maxSpectralPeak;
 
@@ -40,10 +41,13 @@ public:
 	void Stop();
 
 	long Time();
+	float GetInstantAmplitude();
+	float GetMaximumAmplitude();
+	float GetAverageAmplitude(int interval);
 	float GetInstantSpectralFlux();
 	float GetMaximumSpectralFlux();
 	float GetAverageSpectralFlux(int interval);
 	int GetInstantSpectralPeak();
+	float GetSmoothedSpectralPeak(int interval);
 	int GetMaximumSpectralPeak();
-	float GetAverageSpectralPeak(int interval);
 };

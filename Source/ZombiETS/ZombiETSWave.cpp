@@ -1,5 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#define _USE_MATH_DEFINES
+
 #include "ZombiETS.h"
 #include "ZombiETSWave.h"
 
@@ -8,6 +10,7 @@
 #include <locale>
 #include <codecvt>
 #include <numeric>
+#include <math.h>
 
 void ZombiETSWave::SetNameFromPath()
 {
@@ -31,6 +34,7 @@ ZombiETSWave::ZombiETSWave(std::string musicPath, int number)
 
 	musicData = FindBeats(musicPath.c_str());
 
+	this->maxAmplitude = *std::max_element(musicData->amplitudeEnvelope.begin(), musicData->amplitudeEnvelope.end());
 	this->maxSpectralFlux = *std::max_element(musicData->spectralFlux.begin(), musicData->spectralFlux.end());
 	this->maxSpectralPeak = *std::max_element(musicData->peaks.begin(), musicData->peaks.end());
 
@@ -77,10 +81,40 @@ long ZombiETSWave::Time()
 	return std::chrono::duration_cast<std::chrono::milliseconds>(now - atStart).count();
 }
 
+float ZombiETSWave::GetInstantAmplitude()
+{
+	long currentTime = this->Time();
+	int sampleRate = musicData->sampleRate;
+	int samplesPerWindow = musicData->windowSize;
+	double windowRate = sampleRate / (double)samplesPerWindow / 1000; // number of values in the spectral flux & peaks per millisecond
+	return musicData->amplitudeEnvelope.at(round(currentTime * windowRate));
+}
+
+float ZombiETSWave::GetAverageAmplitude(int interval)
+{
+	double halfInterval = interval / 2.0;
+	long currentTime = this->Time();
+	int sampleRate = musicData->sampleRate;
+	int samplesPerWindow = musicData->windowSize;
+	double windowRate = sampleRate / (double)samplesPerWindow / 1000; // number of values in the spectral flux & peaks per millisecond
+
+	long startTime = currentTime - halfInterval;
+	long endTime = currentTime + halfInterval;
+
+	std::vector<float> sub(musicData->amplitudeEnvelope.begin() + max(0, round(startTime * windowRate)), musicData->amplitudeEnvelope.begin() + min(musicData->amplitudeEnvelope.size() - 1, round(endTime * windowRate)));
+
+	return 1.0 * std::accumulate(sub.begin(), sub.end(), 0.0f) / sub.size();
+}
+
+float ZombiETSWave::GetMaximumAmplitude()
+{
+	return maxAmplitude;
+}
+
 float ZombiETSWave::GetInstantSpectralFlux()
 {
 	long currentTime = this->Time();
-	int sampleRate = 44100;
+	int sampleRate = musicData->sampleRate;
 	int samplesPerWindow = musicData->windowSize;
 	double windowRate = sampleRate / (double)samplesPerWindow / 1000; // number of values in the spectral flux & peaks per millisecond
 	return musicData->spectralFlux.at(round(currentTime * windowRate));
@@ -90,7 +124,7 @@ float ZombiETSWave::GetAverageSpectralFlux(int interval)
 {
 	double halfInterval = interval / 2.0;
 	long currentTime = this->Time();
-	int sampleRate = 44100;
+	int sampleRate = musicData->sampleRate;
 	int samplesPerWindow = musicData->windowSize;
 	double windowRate = sampleRate / (double)samplesPerWindow / 1000; // number of values in the spectral flux & peaks per millisecond
 	
@@ -99,7 +133,7 @@ float ZombiETSWave::GetAverageSpectralFlux(int interval)
 
 	std::vector<float> sub(musicData->spectralFlux.begin() + max(0, round(startTime * windowRate)), musicData->spectralFlux.begin() + min(musicData->spectralFlux.size() - 1, round(endTime * windowRate)));
 
-	return 1.0 * std::accumulate(sub.begin(), sub.end(), 0LL) / sub.size();
+	return 1.0 * std::accumulate(sub.begin(), sub.end(), 0.0f) / sub.size();
 }
 
 float ZombiETSWave::GetMaximumSpectralFlux()
@@ -110,26 +144,48 @@ float ZombiETSWave::GetMaximumSpectralFlux()
 int ZombiETSWave::GetInstantSpectralPeak()
 {
 	long currentTime = this->Time();
-	int sampleRate = 44100;
+	int sampleRate = musicData->sampleRate;
 	int samplesPerWindow = musicData->windowSize;
 	double windowRate = sampleRate / (double)samplesPerWindow / 1000; // number of values in the spectral flux & peaks per millisecond
 	return musicData->peaks.at(round(currentTime * windowRate));
 }
 
-float ZombiETSWave::GetAverageSpectralPeak(int interval)
+float ZombiETSWave::GetSmoothedSpectralPeak(int interval)
 {
 	double halfInterval = interval / 2.0;
 	long currentTime = this->Time();
-	int sampleRate = 44100;
+	int sampleRate = musicData->sampleRate;
 	int samplesPerWindow = musicData->windowSize;
 	double windowRate = sampleRate / (double)samplesPerWindow / 1000; // number of values in the spectral flux & peaks per millisecond
 
 	long startTime = currentTime - halfInterval;
 	long endTime = currentTime + halfInterval;
 
-	std::vector<int> sub(musicData->peaks.begin() + max(0, round(startTime * windowRate)), musicData->peaks.begin() + min(musicData->spectralFlux.size() - 1, round(endTime * windowRate)));
+	int currentWindow = round(currentTime * windowRate);
+	int firstWindow = round(startTime * windowRate);
+	int lastWindow = round(endTime * windowRate);
 
-	return 1.0 * std::accumulate(sub.begin(), sub.end(), 0LL) / sub.size();
+	std::vector<int> sub;
+
+	int windowSize = max(lastWindow - currentWindow, currentWindow - firstWindow);
+
+	if (windowSize > 0)
+	{
+		for (int i = firstWindow; i < (firstWindow + windowSize); i++)
+		{
+			if (i >= 0 && i < musicData->peaks.size())
+			{
+				float hammingCoefficient = 0.54 - 0.46 * cos(2 * M_PI * (i - firstWindow) / (double)windowSize);
+				sub.push_back(musicData->peaks.at(i) * hammingCoefficient);
+			}
+			else
+			{
+				sub.push_back(0);
+			}
+		}
+	}
+
+	return 1.0 * std::accumulate(sub.begin(), sub.end(), 0.0f);// / sub.size();
 }
 
 int ZombiETSWave::GetMaximumSpectralPeak()
