@@ -53,7 +53,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void UpdateHealth(float HealthChange);
 
+	UFUNCTION(BlueprintPure, Category = "Speed")
 	static float GetSpeedMultiplier();
+	UFUNCTION(BlueprintPure, Category = "Speed")
 	static float SetSpeedMultiplier(float speed);
 
 	float baseSpeed;
