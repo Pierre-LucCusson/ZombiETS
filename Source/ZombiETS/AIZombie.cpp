@@ -6,6 +6,7 @@
 #include "ZombiETSCharacter.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "Perception/PawnSensingComponent.h"
+#include "ZombiETSGameMode.h"
 
 #define COLLISION_SWORD ECollisionChannel::ECC_GameTraceChannel1
 #define COLLISION_PLAYER ECollisionChannel::ECC_GameTraceChannel2
@@ -66,6 +67,12 @@ void AAIZombie::BeginPlay()
 	
 }
 
+void AAIZombie::AlertGameModeOfDeath()
+{
+	AZombiETSGameMode* gameMode = (AZombiETSGameMode*)GetWorld()->GetAuthGameMode();
+	gameMode->ZombieKilled(1);
+}
+
 // Called every frame
 void AAIZombie::Tick(float DeltaTime)
 {
@@ -110,6 +117,7 @@ void AAIZombie::OnZombieOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 				isDead = true;
 				GetMesh()->PlayAnimation(deathAnimation, false);
 				SetLifeSpan(5);
+				AlertGameModeOfDeath();
 				//Destroy();
 			}
 		}

@@ -36,6 +36,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Wave")
 	FString GetWaveMusicName();
 
+	// Returns wave number
+	UFUNCTION(BlueprintPure, Category = "Wave")
+	int GetZombieToKillBeforeNextWave();
+
 	virtual void BeginPlay() override;
 
 	// currentState Getter
@@ -60,6 +64,13 @@ public:
 
 	//Manage the wave
 	void ManageWave(ZombiETSWave* wave);
+
+	//Start next wave
+	void StartNextWave();
+
+	int ZombieKilled(int zombies = 0);
+
+	void SetLoading(bool load = true);
 
 protected:
 	// health decreasing rate
@@ -90,9 +101,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wave", Meta = (BlueprintProtected = "true"))
 	TSubclassOf<class UUserWidget> WaveHUDWidgetClass;
 
+	// Zombies To kill in the current wave
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wave", Meta = (BlueprintProtected = "true"))
+	int ZombiesToKill;
+
 	// Wave Widget class
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Death", Meta = (BlueprintProtected = "true"))
 	TSubclassOf<class UUserWidget> DeathWidgetClass;
+
+	// Loading Widget class
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Loading", Meta = (BlueprintProtected = "true"))
+	TSubclassOf<class UUserWidget> LoadingWidgetClass;
 
 	// Instance of health widget class
 	UPROPERTY()
@@ -105,6 +124,13 @@ private:
 
 	// Wave Manager
 	WaveManager* waveManager;
+
+	// Zombie killed in the current wave
+	int ZombieKilledInWave;
+
+	// Instance of health widget class
+	UPROPERTY()
+	class UUserWidget* LoadingWidget;
 
 	void Dead();
 };

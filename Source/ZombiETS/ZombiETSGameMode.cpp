@@ -40,6 +40,11 @@ FString AZombiETSGameMode::GetWaveMusicName()
 	return waveMusic;
 }
 
+int AZombiETSGameMode::GetZombieToKillBeforeNextWave()
+{
+	return ZombiesToKill - ZombieKilledInWave;
+}
+
 void AZombiETSGameMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -52,6 +57,7 @@ void AZombiETSGameMode::BeginPlay()
 	{
 		HealthToLose = 0.0f;
 	}
+	LoadingWidget = CreateWidget<UUserWidget>(GetWorld(), LoadingWidgetClass);
 	if (HUDWidgetClass != nullptr)
 	{
 		CurrentWidget = CreateWidget<UUserWidget>(GetWorld(), HUDWidgetClass);
@@ -68,8 +74,8 @@ void AZombiETSGameMode::BeginPlay()
 			CurrentWidget->AddToViewport();
 		}
 	}
-
-	waveManager->StartNextWave();
+	
+	StartNextWave();
 }
 
 AZombiETSGameMode::~AZombiETSGameMode()
@@ -98,6 +104,10 @@ void AZombiETSGameMode::Tick(float DeltaTime)
 	}
 
 	ManageWave(waveManager->CurrentWave());
+
+	if (ZombieKilledInWave >= ZombiesToKill) {
+		StartNextWave();
+	}
 }
 
 float AZombiETSGameMode::GetHealthToLose()
@@ -178,6 +188,32 @@ void AZombiETSGameMode::ManageWave(ZombiETSWave * wave)
 
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Current speed: %f"), envelopeIntensity));
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Current light: %f"), peakIntensity));
+}
+
+void AZombiETSGameMode::StartNextWave()
+{
+	SetLoading(true);
+	waveManager->StartNextWave();
+	ZombieKilledInWave = 0;
+	ZombiesToKill = 1;
+	SetLoading(false);
+}
+
+int AZombiETSGameMode::ZombieKilled(int zombies)
+{
+	return ZombieKilledInWave += zombies;
+}
+
+void AZombiETSGameMode::SetLoading(bool load)
+{
+	if (load) {
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("LOADING..."));
+		LoadingWidget->AddToViewport();
+	}
+	else {
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("NOT LOADING..."));
+		LoadingWidget->RemoveFromViewport();
+	}
 }
 
 void AZombiETSGameMode::Dead()

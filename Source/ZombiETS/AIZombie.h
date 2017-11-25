@@ -22,6 +22,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	float InitialHealth;
 
+	// Alert the game mode of the zombie's death
+	void AlertGameModeOfDeath();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
