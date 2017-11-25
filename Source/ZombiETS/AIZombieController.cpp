@@ -3,6 +3,7 @@
 #include "ZombiETS.h"
 #include "AIZombieController.h"
 #include "AIZombie.h"
+#include "ZombiETSCharacter.h"
 #include "AIZombiePoint.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
@@ -41,6 +42,15 @@ void AAIZombieController::Possess(APawn* Pawn)
 		if (AICharacter->BehaviorTree->BlackboardAsset) 
 		{
 			BlackboardComp->InitializeBlackboard(*(AICharacter->BehaviorTree->BlackboardAsset));
+		}
+
+		AZombiETSCharacter* mainCharacter = Cast<AZombiETSCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
+		if (mainCharacter)
+		{
+			if (BlackboardComp)
+			{
+				BlackboardComp->SetValueAsObject(PlayerKey, mainCharacter);
+			}
 		}
 
 		//Populate zombie point array
