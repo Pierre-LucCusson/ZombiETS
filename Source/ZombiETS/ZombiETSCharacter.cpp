@@ -209,7 +209,7 @@ float AZombiETSCharacter::GetCurrentHealth()
 void AZombiETSCharacter::UpdateHealth(float HealthChange)
 {
 	// Change Character'health
-	CharacterHealth = FMath::Min(CharacterHealth + HealthChange, InitialHealth);
+	CharacterHealth = FMath::Clamp(CharacterHealth + HealthChange, 0.0f, InitialHealth);
 
 	// call visual effect
 	HealthChangeEffect();
