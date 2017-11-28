@@ -50,4 +50,5 @@ public:
 	int GetInstantSpectralPeak();
 	float GetSmoothedSpectralPeak(int interval);
 	int GetMaximumSpectralPeak();
+	bool IsFinished();
 };

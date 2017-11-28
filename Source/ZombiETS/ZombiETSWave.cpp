@@ -192,3 +192,8 @@ int ZombiETSWave::GetMaximumSpectralPeak()
 {
 	return maxSpectralPeak;
 }
+
+bool ZombiETSWave::IsFinished()
+{
+	return Time() >= ceil(musicData->duration);
+}
