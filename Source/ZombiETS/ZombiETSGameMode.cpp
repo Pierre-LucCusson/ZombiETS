@@ -91,7 +91,7 @@ void AZombiETSGameMode::Tick(float DeltaTime)
 	if (MyCharacter) 
 	{
 		// if game over (DEAD)
-		if (MyCharacter->GetCurrentHealth() <= HealthToLose)
+		if (MyCharacter->GetCurrentHealth() <= HealthToLose || waveManager->CurrentWave()->IsFinished())
 		{
 			Dead();
 		}
@@ -195,7 +195,7 @@ void AZombiETSGameMode::StartNextWave()
 	SetLoading(true);
 	waveManager->StartNextWave();
 	ZombieKilledInWave = 0;
-	ZombiesToKill = 1;
+	ZombiesToKill = 10 * waveManager->CurrentWave()->GetNumber();
 	SetLoading(false);
 }
 
