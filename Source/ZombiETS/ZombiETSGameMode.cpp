@@ -137,13 +137,13 @@ void AZombiETSGameMode::SetLighting(float lighting)
 	for (TActorIterator<ADirectionalLight> Itr(GetWorld()); Itr; ++Itr)
 	{
 		ADirectionalLight* light = *Itr;
-		light->SetBrightness(3*lighting);
+		light->SetBrightness(5*lighting);
 	}
 
 	for (TActorIterator<ASkyLight> Itr(GetWorld()); Itr; ++Itr)
 	{
 		ASkyLight* light = *Itr;
-		light->GetLightComponent()->Intensity = lighting;
+		light->GetLightComponent()->Intensity = 2*lighting;
 	}
 }
 
@@ -195,7 +195,7 @@ void AZombiETSGameMode::StartNextWave()
 	SetLoading(true);
 	waveManager->StartNextWave();
 	ZombieKilledInWave = 0;
-	ZombiesToKill = 10 * waveManager->CurrentWave()->GetNumber();
+	ZombiesToKill = 5 * waveManager->CurrentWave()->GetNumber();
 	SetLoading(false);
 }
 
