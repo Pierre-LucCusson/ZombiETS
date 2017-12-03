@@ -89,40 +89,42 @@ void AAIZombie::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AAIZombie::OnPlayerCaught(APawn * Pawn)
 {
-	//Get a reference to the player controller
-	AAIZombieController* AIController = Cast<AAIZombieController>(GetController());
-
-	if (AIController)
-	{
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Zombie: I can see you !!!"));
-		AIController->SetPlayerCaught(Pawn);
+	if (!isDead) {
+		//Get a reference to the player controller
+		AAIZombieController* AIController = Cast<AAIZombieController>(GetController());
+		if (AIController)
+		{
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Zombie: I can see you !!!"));
+			AIController->SetPlayerCaught(Pawn);
+		}
 	}
 }
 
 void AAIZombie::OnZombieOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OverlappedComponent->GetCollisionObjectType() == COLLISION_PLAYER) {
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("PLAYER"));
-		GetMesh()->PlayAnimation(attackAnimation, false);
-		AZombiETSCharacter* player = Cast<AZombiETSCharacter>(OtherActor);
-		if (player != nullptr) {
-			player->UpdateHealth(-100);
+	if (!isDead) {
+		if (OverlappedComponent->GetCollisionObjectType() == COLLISION_PLAYER) {
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("PLAYER"));
+			GetMesh()->PlayAnimation(attackAnimation, false);
+			AZombiETSCharacter* player = Cast<AZombiETSCharacter>(OtherActor);
+			if (player != nullptr) {
+				player->UpdateHealth(-100);
+			}
 		}
-	}
-	else if (OverlappedComponent->GetCollisionObjectType() == COLLISION_SWORD) {
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("SWORD"));
-		UpdateHealth(-500);
-		if (ZombieHealth <= 0) {
-			if (!isDead) {
-				isDead = true;
+		else if (OverlappedComponent->GetCollisionObjectType() == COLLISION_SWORD) {
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("SWORD"));
+			UpdateHealth(-500);
+			if (ZombieHealth <= 0) {
+				OnPlayerCaught(nullptr);
 				GetMesh()->PlayAnimation(deathAnimation, false);
 				SetLifeSpan(5);
 				AlertGameModeOfDeath();
 				//Destroy();
+				isDead = true;
 			}
-		}
-		else {
-			GetMesh()->PlayAnimation(hitAnimation, false);
+			else {
+				GetMesh()->PlayAnimation(hitAnimation, false);
+			}
 		}
 	}
 }
