@@ -52,7 +52,6 @@ AAIZombie::AAIZombie(const FObjectInitializer& objectInitializer)
 
 	static ConstructorHelpers::FObjectFinder<UAnimSequence> attAnim(TEXT("AnimSequence'/Game/AI/Zombie/Skins/ZombieYaku/Animations/Yaku_Zombie_Attack_Anim_mixamo_com'"));
 	attackAnimation = attAnim.Object;
-	
 }
 
 // Called when the game starts or when spawned
@@ -64,7 +63,6 @@ void AAIZombie::BeginPlay()
 	{
 		PawnSensingComp->OnSeePawn.AddDynamic(this, &AAIZombie::OnPlayerCaught);
 	}
-	
 }
 
 void AAIZombie::AlertGameModeOfDeath()
@@ -104,26 +102,24 @@ void AAIZombie::OnZombieOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 {
 	if (!isDead) {
 		if (OverlappedComponent->GetCollisionObjectType() == COLLISION_PLAYER) {
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("PLAYER"));
-			GetMesh()->PlayAnimation(attackAnimation, false);
+			PlayAnimation(attackAnimation, 2.63);
 			AZombiETSCharacter* player = Cast<AZombiETSCharacter>(OtherActor);
 			if (player != nullptr) {
 				player->UpdateHealth(-100);
 			}
 		}
 		else if (OverlappedComponent->GetCollisionObjectType() == COLLISION_SWORD) {
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("SWORD"));
 			UpdateHealth(-500);
 			if (ZombieHealth <= 0) {
 				OnPlayerCaught(nullptr);
-				GetMesh()->PlayAnimation(deathAnimation, false);
+				PlayAnimation(deathAnimation, 3);
 				SetLifeSpan(5);
 				AlertGameModeOfDeath();
 				//Destroy();
 				isDead = true;
 			}
 			else {
-				GetMesh()->PlayAnimation(hitAnimation, false);
+				PlayAnimation(hitAnimation, 2);
 			}
 		}
 	}
@@ -154,6 +150,21 @@ void AAIZombie::UpdateHealth(float HealthChange)
 {
 	// Change Character'health
 	ZombieHealth += HealthChange;
-
 }
+
+void AAIZombie::PlayAnimation(UAnimationAsset* animation, float time)
+{
+	GetMesh()->PlayAnimation(animation, false);
+	FTimerHandle FuzeTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(FuzeTimerHandle, this, &AAIZombie::SetAnimationBlueprintMode, time, false);
+}
+
+void AAIZombie::SetAnimationBlueprintMode()
+{
+	//GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+	if (!isDead) {
+		GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+	}
+}
+
 

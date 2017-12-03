@@ -66,6 +66,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	UAnimSequence *attackAnimation;
 
+	UFUNCTION(BlueprintCallable, Category = "Animation")
+	void PlayAnimation(UAnimationAsset* animation, float time);
+
+	UFUNCTION(BlueprintCallable, Category = "Animation")
+	void SetAnimationBlueprintMode();
+
 private:
 
 	UFUNCTION()
